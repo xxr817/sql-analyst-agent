@@ -1,0 +1,129 @@
+{
+  "model": "claude-sonnet-5-5",
+  "execution_accuracy": 0.7,
+  "answer_accuracy": 1.0,
+  "total_tokens": 74153,
+  "note": "v1 run (original prompt); re-scored offline with both metrics",
+  "results": [
+    {
+      "id": "q01",
+      "difficulty": "leicht",
+      "steps": 4,
+      "sql_errors_self_corrected": 0,
+      "seconds": 8.3,
+      "tokens": 6253,
+      "final_sql": "SELECT COUNT(*) AS anzahl_marken, COUNT(DISTINCT name) AS distinct_marken FROM brands",
+      "answer": "In der Datenbank sind **10 Automarken** enthalten. Das ist die Zahl der Einträge in der Tabelle `brands`, und alle Namen kommen nur einmal vor. Es handelt sich um synthetische Demo-Daten.",
+      "execution_correct": true,
+      "answer_correct": true
+    },
+    {
+      "id": "q02",
+      "difficulty": "leicht",
+      "steps": 4,
+      "sql_errors_self_corrected": 0,
+      "seconds": 5.0,
+      "tokens": 6627,
+      "final_sql": "SELECT SUM(units) AS total_units, COUNT(*) AS n_rows, MIN(month) AS min_m, MAX(month) AS max_m FROM registrations WHERE substr(month,1,4)='2024'",
+      "answer": "Im Jahr 2024 gab es insgesamt **497.200 Neuzulassungen**. Die Summe stammt aus 4.992 Datensätzen und deckt alle zwölf Monate von Januar bis Dezember 2024 ab. Es handelt sich um synthetische Demo-Daten.",
+      "execution_correct": true,
+      "answer_correct": true
+    },
+    {
+      "id": "q03",
+      "difficulty": "leicht",
+      "steps": 4,
+      "sql_errors_self_corrected": 0,
+      "seconds": 5.4,
+      "tokens": 6618,
+      "final_sql": "SELECT m.name AS modell, b.name AS marke, m.segment, m.powertrain, m.base_price_eur FROM models m JOIN brands b ON b.brand_id=m.brand_id WHERE m.base_price_eur = (SELECT MAX(base_price_eur) FROM models)",
+      "answer": "Das Modell mit dem höchsten Grundpreis ist der Mercedes-Benz GLC. Er ist ein SUV mit Plug-in-Hybrid-Antrieb (PHEV) und kostet 66.700 €. Kein anderes Modell hat denselben Preis. Die Daten sind synthetische Demo-Daten.",
+      "execution_correct": true,
+      "answer_correct": true
+    },
+    {
+      "id": "q04",
+      "difficulty": "mittel",
+      "steps": 5,
+      "sql_errors_self_corrected": 0,
+      "seconds": 6.3,
+      "tokens": 7415,
+      "final_sql": "SELECT SUM(r.units) AS total_units, MIN(r.month) AS min_m, MAX(r.month) AS max_m, COUNT(DISTINCT r.month) AS months FROM registrations r JOIN models m ON m.model_id=r.model_id JOIN brands b ON b.brand_id=m.brand_id WHERE b.name='BMW' AND m.powertrain='BEV' AND substr(r.month,1,4)='2025'",
+      "answer": "BMW hat 2025 insgesamt **34.029 Elektroautos (BEV)** neu zugelassen. Die Daten decken alle 12 Monate von Januar bis Dezember 2025 ab. Dabei handelt es sich um synthetische Demo-Daten.",
+      "execution_correct": true,
+      "answer_correct": true
+    },
+    {
+      "id": "q05",
+      "difficulty": "mittel",
+      "steps": 5,
+      "sql_errors_self_corrected": 0,
+      "seconds": 6.7,
+      "tokens": 7359,
+      "final_sql": "SELECT b.name, SUM(r.units) AS units FROM registrations r JOIN models m ON m.model_id=r.model_id JOIN brands b ON b.brand_id=m.brand_id WHERE substr(r.month,1,4)='2025' GROUP BY b.brand_id ORDER BY units DESC LIMIT 3",
+      "answer": "Die drei Marken mit den meisten Neuzulassungen im Jahr 2025 sind:\n1. Volkswagen: 137.134 Stück\n2. BMW: 74.265 Stück\n3. Skoda: 57.880 Stück\n\nEs handelt sich um synthetische Demo-Daten.",
+      "execution_correct": true,
+      "answer_correct": true
+    },
+    {
+      "id": "q06",
+      "difficulty": "mittel",
+      "steps": 5,
+      "sql_errors_self_corrected": 0,
+      "seconds": 5.5,
+      "tokens": 7359,
+      "final_sql": "SELECT r.state, SUM(r.units) AS total FROM registrations r JOIN models m ON m.model_id=r.model_id JOIN brands b ON b.brand_id=m.brand_id WHERE b.name='BMW' AND substr(r.month,1,4)='2024' GROUP BY r.state ORDER BY total DESC LIMIT 5",
+      "answer": "Nordrhein-Westfalen hatte 2024 die meisten BMW-Neuzulassungen, nämlich 15.689. Bayern folgt mit 14.249 und Baden-Württemberg mit 9.113. Es handelt sich um synthetische Demo-Daten.",
+      "execution_correct": false,
+      "answer_correct": true
+    },
+    {
+      "id": "q07",
+      "difficulty": "mittel",
+      "steps": 5,
+      "sql_errors_self_corrected": 0,
+      "seconds": 7.0,
+      "tokens": 7515,
+      "final_sql": "SELECT SUM(CASE WHEN m.powertrain='BEV' THEN r.units END) AS bev, SUM(r.units) AS total, ROUND(100.0*SUM(CASE WHEN m.powertrain='BEV' THEN r.units END)/SUM(r.units),1) AS pct FROM registrations r JOIN models m ON m.model_id=r.model_id WHERE substr(r.month,1,4)='2025'",
+      "answer": "Im Jahr 2025 lag der BEV-Anteil an allen Neuzulassungen bei **50,0 %**. Von insgesamt 505.207 Neuzulassungen entfielen 252.654 auf reine Elektroautos. Die Zahlen stammen aus synthetischen Demo-Daten.",
+      "execution_correct": true,
+      "answer_correct": true
+    },
+    {
+      "id": "q08",
+      "difficulty": "schwer",
+      "steps": 6,
+      "sql_errors_self_corrected": 0,
+      "seconds": 7.9,
+      "tokens": 10055,
+      "final_sql": "select substr(r.month,1,4) y, sum(r.units) u from registrations r join models m on m.model_id=r.model_id join brands b on b.brand_id=m.brand_id where b.country='China' and substr(r.month,1,4) in ('2023','2025') group by y",
+      "answer": "Die Neuzulassungen chinesischer Marken sind von 2023 auf 2025 um **98,1 %** gestiegen. Sie wuchsen von 26.010 auf 51.528 Fahrzeuge. Als chinesische Marken zählen die zwei Marken, bei denen in der Tabelle `brands` als Herkunftsland China steht. Die Zahlen stammen aus synthetischen Demo-Daten.",
+      "execution_correct": false,
+      "answer_correct": true
+    },
+    {
+      "id": "q09",
+      "difficulty": "schwer",
+      "steps": 5,
+      "sql_errors_self_corrected": 0,
+      "seconds": 6.9,
+      "tokens": 7485,
+      "final_sql": "SELECT b.name AS marke, m.name AS modell, SUM(r.units) AS total FROM registrations r JOIN models m ON m.model_id=r.model_id JOIN brands b ON b.brand_id=m.brand_id WHERE m.powertrain='BEV' AND substr(r.month,1,4)='2025' GROUP BY m.model_id ORDER BY total DESC LIMIT 5",
+      "answer": "Das meistzugelassene Elektroauto (BEV) 2025 war das **Model Y** von **Tesla** mit 30.047 Neuzulassungen. Dahinter liegen der VW ID.4 mit 28.081 und der VW ID.3 mit 26.301. Das sind synthetische Demo-Daten.",
+      "execution_correct": false,
+      "answer_correct": true
+    },
+    {
+      "id": "q10",
+      "difficulty": "schwer",
+      "steps": 5,
+      "sql_errors_self_corrected": 0,
+      "seconds": 6.0,
+      "tokens": 7467,
+      "final_sql": "SELECT b.group_name, SUM(r.units) AS units FROM registrations r JOIN models m ON m.model_id=r.model_id JOIN brands b ON b.brand_id=m.brand_id WHERE substr(r.month,1,4)='2025' GROUP BY b.group_name HAVING SUM(r.units)>50000 ORDER BY units DESC",
+      "answer": "Im Jahr 2025 hatten drei Konzerne mehr als 50.000 Neuzulassungen:\n\n- **Volkswagen AG:** 232.557\n- **BMW Group:** 74.265\n- **Mercedes-Benz Group:** 51.996\n\nAlle anderen Konzerne lagen bei 50.000 oder darunter. Die Zahlen stammen aus synthetischen Demo-Daten.",
+      "execution_correct": true,
+      "answer_correct": true
+    }
+  ]
+}

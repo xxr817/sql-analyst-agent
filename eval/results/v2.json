@@ -1,0 +1,128 @@
+{
+  "model": "claude-sonnet-5-5",
+  "execution_accuracy": 1.0,
+  "answer_accuracy": 1.0,
+  "total_tokens": 79048,
+  "results": [
+    {
+      "id": "q01",
+      "difficulty": "leicht",
+      "execution_correct": true,
+      "answer_correct": true,
+      "steps": 4,
+      "sql_errors_self_corrected": 0,
+      "seconds": 6.5,
+      "tokens": 6665,
+      "final_sql": "SELECT COUNT(*) AS anzahl_marken FROM brands",
+      "answer": "In der Tabelle `brands` sind 10 Automarken enthalten. Es handelt sich dabei um synthetische Demo-Daten."
+    },
+    {
+      "id": "q02",
+      "difficulty": "leicht",
+      "execution_correct": true,
+      "answer_correct": true,
+      "steps": 4,
+      "sql_errors_self_corrected": 0,
+      "seconds": 5.2,
+      "tokens": 7011,
+      "final_sql": "SELECT SUM(units) AS total_units FROM registrations WHERE substr(month,1,4)='2024'",
+      "answer": "Im Jahr 2024 gab es insgesamt **497.200 Neuzulassungen**. Das ist die Summe der Spalte `units` über alle Monate, Bundesländer und Modelle von 2024. Es handelt sich um synthetische Demo-Daten."
+    },
+    {
+      "id": "q03",
+      "difficulty": "leicht",
+      "execution_correct": true,
+      "answer_correct": true,
+      "steps": 4,
+      "sql_errors_self_corrected": 0,
+      "seconds": 6.0,
+      "tokens": 7010,
+      "final_sql": "SELECT m.name AS modell, b.name AS marke, m.base_price_eur FROM models m JOIN brands b ON b.brand_id=m.brand_id ORDER BY m.base_price_eur DESC LIMIT 1",
+      "answer": "Das Modell mit dem höchsten Grundpreis ist der Mercedes-Benz GLC. Er kostet 66.700 €. Die Daten sind synthetische Demo-Daten."
+    },
+    {
+      "id": "q04",
+      "difficulty": "mittel",
+      "execution_correct": true,
+      "answer_correct": true,
+      "steps": 5,
+      "sql_errors_self_corrected": 0,
+      "seconds": 6.9,
+      "tokens": 7869,
+      "final_sql": "SELECT SUM(r.units) AS total_units, MIN(r.month) AS min_m, MAX(r.month) AS max_m FROM registrations r JOIN models m ON m.model_id=r.model_id JOIN brands b ON b.brand_id=m.brand_id WHERE b.name='BMW' AND m.powertrain='BEV' AND substr(r.month,1,4)='2025'",
+      "answer": "BMW hat 2025 insgesamt **34.029** Elektroautos (BEV) neu zugelassen. Die Daten decken dafür die Monate Januar bis Dezember 2025 ab. Es handelt sich um synthetische Demo-Daten."
+    },
+    {
+      "id": "q05",
+      "difficulty": "mittel",
+      "execution_correct": true,
+      "answer_correct": true,
+      "steps": 5,
+      "sql_errors_self_corrected": 0,
+      "seconds": 5.7,
+      "tokens": 7892,
+      "final_sql": "SELECT b.name, SUM(r.units) AS units FROM registrations r JOIN models m ON m.model_id=r.model_id JOIN brands b ON b.brand_id=m.brand_id WHERE substr(r.month,1,4)='2025' GROUP BY b.brand_id, b.name ORDER BY units DESC LIMIT 3",
+      "answer": "Die drei Marken mit den meisten Neuzulassungen im Jahr 2025 sind:\n\n1. **Volkswagen:** 137.134 Fahrzeuge\n2. **BMW:** 74.265 Fahrzeuge\n3. **Skoda:** 57.880 Fahrzeuge\n\nEs handelt sich um synthetische Demo-Daten."
+    },
+    {
+      "id": "q06",
+      "difficulty": "mittel",
+      "execution_correct": true,
+      "answer_correct": true,
+      "steps": 5,
+      "sql_errors_self_corrected": 0,
+      "seconds": 5.4,
+      "tokens": 7797,
+      "final_sql": "SELECT r.state, SUM(r.units) AS total FROM registrations r JOIN models m ON m.model_id=r.model_id JOIN brands b ON b.brand_id=m.brand_id WHERE b.name='BMW' AND substr(r.month,1,4)='2024' GROUP BY r.state ORDER BY total DESC LIMIT 1",
+      "answer": "In Nordrhein-Westfalen wurden 2024 die meisten BMW zugelassen, nämlich 15.689 Neuzulassungen. Dabei handelt es sich um synthetische Demo-Daten."
+    },
+    {
+      "id": "q07",
+      "difficulty": "mittel",
+      "execution_correct": true,
+      "answer_correct": true,
+      "steps": 5,
+      "sql_errors_self_corrected": 0,
+      "seconds": 7.1,
+      "tokens": 8041,
+      "final_sql": "SELECT ROUND(100.0*SUM(CASE WHEN m.powertrain='BEV' THEN r.units END)/SUM(r.units),1) AS bev_anteil_pct, SUM(CASE WHEN m.powertrain='BEV' THEN r.units END) AS bev, SUM(r.units) AS gesamt FROM registrations r JOIN models m ON m.model_id=r.model_id WHERE substr(r.month,1,4)='2025'",
+      "answer": "Elektroautos (BEV) hatten 2025 einen Anteil von **50,0 %** an allen Neuzulassungen. Das sind 252.654 BEV von insgesamt 505.207 Neuzulassungen. Dabei handelt es sich um synthetische Demo-Daten."
+    },
+    {
+      "id": "q08",
+      "difficulty": "schwer",
+      "execution_correct": true,
+      "answer_correct": true,
+      "steps": 6,
+      "sql_errors_self_corrected": 0,
+      "seconds": 8.0,
+      "tokens": 10903,
+      "final_sql": "SELECT SUM(CASE WHEN substr(r.month,1,4)='2023' THEN r.units END) AS u2023, SUM(CASE WHEN substr(r.month,1,4)='2025' THEN r.units END) AS u2025, ROUND(100.0*(SUM(CASE WHEN substr(r.month,1,4)='2025' THEN r.units END)-SUM(CASE WHEN substr(r.month,1,4)='2023' THEN r.units END))/SUM(CASE WHEN substr(r.month,1,4)='2023' THEN r.units END),1) AS pct FROM registrations r JOIN models m ON m.model_id=r.model_id JOIN brands b ON b.brand_id=m.brand_id WHERE b.country='China'",
+      "answer": "Die Neuzulassungen chinesischer Marken sind von 2023 auf 2025 um **98,1 %** gestiegen. 2023 waren es 26.010 Fahrzeuge und 2025 dann 51.528. Dabei handelt es sich um synthetische Demo-Daten."
+    },
+    {
+      "id": "q09",
+      "difficulty": "schwer",
+      "execution_correct": true,
+      "answer_correct": true,
+      "steps": 5,
+      "sql_errors_self_corrected": 0,
+      "seconds": 5.8,
+      "tokens": 7903,
+      "final_sql": "SELECT m.name AS modell, b.name AS marke, SUM(r.units) AS total FROM registrations r JOIN models m ON m.model_id=r.model_id JOIN brands b ON b.brand_id=m.brand_id WHERE m.powertrain='BEV' AND substr(r.month,1,4)='2025' GROUP BY m.model_id ORDER BY total DESC LIMIT 1",
+      "answer": "Das meistzugelassene Elektroauto (BEV) 2025 war das **Model Y** von **Tesla**. Es kam auf 30.047 Neuzulassungen. Die Zahlen stammen aus synthetischen Demo-Daten."
+    },
+    {
+      "id": "q10",
+      "difficulty": "schwer",
+      "execution_correct": true,
+      "answer_correct": true,
+      "steps": 5,
+      "sql_errors_self_corrected": 0,
+      "seconds": 6.0,
+      "tokens": 7957,
+      "final_sql": "SELECT b.group_name, SUM(r.units) AS units FROM registrations r JOIN models m ON m.model_id=r.model_id JOIN brands b ON b.brand_id=m.brand_id WHERE substr(r.month,1,4)='2025' GROUP BY b.group_name HAVING SUM(r.units)>50000 ORDER BY units DESC",
+      "answer": "Im Jahr 2025 lagen drei Konzerne über 50.000 Neuzulassungen:\n\n- Volkswagen AG: 232.557\n- BMW Group: 74.265\n- Mercedes-Benz Group: 51.996\n\nAlle anderen Konzerne blieben bei 50.000 oder darunter. Es handelt sich um synthetische Demo-Daten."
+    }
+  ]
+}

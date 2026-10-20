@@ -6,6 +6,8 @@
 
 Built with Python, the Anthropic Claude API (tool use), SQLite and Streamlit.
 
+![Screenshot of the web interface: question, tool calls, answer, result table and chart](docs/screenshot.png)
+
 ---
 
 ## Why this project
@@ -20,9 +22,9 @@ In many companies, business teams depend on data analysts for every simple quest
 | **Agent loop (own implementation)** | `think → call tool → observe result → repeat` until the answer is final. No LangChain or other framework, so every step is transparent ([`sql_agent/agent.py`](sql_agent/agent.py)). |
 | **Self-correction** | SQL errors are returned to the model as tool results. The agent reads the error message and rewrites its query. |
 | **Guardrails** | Two independent layers: (1) a validator allows only a single `SELECT`/`WITH` statement and blocks write/DDL keywords, (2) the SQLite file is opened in read-only mode. Plus a 200-row limit and a 5 s query timeout ([`sql_agent/tools.py`](sql_agent/tools.py)). |
-| **Evaluation** | 10 benchmark questions (easy → hard) with reference SQL. The script measures *execution accuracy*: does the agent's final query return the same result as the reference? |
-| **Tests** | 19 offline tests (pytest) for guardrails and the agent loop, using a scripted fake model, so they run without an API key. |
-| **Web UI** | Streamlit app that shows every tool call, highlights self-corrected errors, and charts the result. |
+| **Evaluation** | 10 benchmark questions (easy → hard) with reference SQL and two metrics: strict *execution accuracy* (does the final query return exactly the reference result?) and *answer accuracy* (are all reference values in the answer the user sees?). |
+| **Tests** | 27 offline tests (pytest) for guardrails, the agent loop, the evaluation metrics and chart selection, using a scripted fake model, so they run without an API key. |
+| **Web UI** | Streamlit app that shows every tool call, highlights self-corrected errors, and picks a fitting chart (sorted bar chart for rankings, line chart for time series). |
 
 ## Architecture
 
@@ -60,7 +62,7 @@ Run the tests (no API key needed) and the evaluation:
 
 ```bash
 pytest -q
-python eval/run_eval.py               # all 10 questions
+python eval/run_eval.py --label my-run   # all 10 questions -> eval/results/my-run.json
 python eval/run_eval.py --limit 3     # quick check
 ```
 
@@ -73,8 +75,16 @@ python eval/run_eval.py --limit 3     # quick check
 
 ## Evaluation results
 
-<!-- Paste the output of `python eval/run_eval.py` here after running it with your API key. -->
-_Results will be added after the first evaluation run._
+10 benchmark questions (3 easy, 4 medium, 3 hard), model `claude-sonnet-5-5`, run on 2026-10-20. Full logs including every final SQL query and answer: [`eval/results/`](eval/results/).
+
+| Run | Change | Execution accuracy (strict) | Answer accuracy | Tokens (10 questions) | Ø tool calls | Ø seconds |
+|---|---|---|---|---|---|---|
+| v1 | initial system prompt | 7/10 (70 %) | 10/10 (100 %) | 74,153 | 4.8 | 6.5 |
+| v2 | prompt: compute derived values in SQL, return only the requested rows | **10/10 (100 %)** | **10/10 (100 %)** | 79,048 | 4.8 | 6.3 |
+
+**What the v1 errors were:** all three strict failures were *correct answers* that the strict metric rejected: twice the agent returned the top 5 rows for a "which one is the highest" question (for context), and once it calculated a percentage in its answer text instead of in SQL. That is why I added a second, answer-level metric and made the prompt explicit about what the final query must return.
+
+**Limitations (honest view):** 10 questions is a small benchmark, the questions were written by me, and the v2 prompt was adjusted after looking at v1, so these numbers show that the pipeline works, not general Text-to-SQL accuracy. No SQL errors occurred in either run, so self-correction is covered by the offline tests rather than by this benchmark. Next steps would be a larger, independently written question set and harder, ambiguous questions.
 
 ## What I learned / design decisions
 
@@ -86,11 +96,12 @@ _Results will be added after the first evaluation run._
 ## Project structure
 
 ```
-sql_agent/      agent loop, tools + guardrails, system prompt
+sql_agent/      agent loop, tools + guardrails, system prompt, chart selection
 data/           demo database and generator script
 eval/           benchmark questions and evaluation script
 tests/          offline tests (pytest)
-app.py          Streamlit web interface
+app.py          Streamlit web interface (.streamlit/ holds its config)
+docs/           screenshot
 ```
 
 ## Author

@@ -9,6 +9,7 @@ import streamlit as st
 from dotenv import load_dotenv
 
 from sql_agent import SQLAgent
+from sql_agent.charts import build_chart
 
 ROOT = Path(__file__).resolve().parent
 DB_PATH = ROOT / "data" / "autos.db"
@@ -67,19 +68,18 @@ if st.button("Analysieren", type="primary") and question:
     st.subheader("Antwort")
     st.write(result.answer)
 
-    cols = st.columns(4)
+    cols = st.columns(3)
     cols[0].metric("Werkzeugaufrufe", len(result.steps))
     cols[1].metric("Selbst korrigierte SQL-Fehler", result.sql_errors)
-    cols[2].metric("Tokens", result.input_tokens + result.output_tokens)
-    cols[3].metric("Modell", agent.model)
+    cols[2].metric("Tokens", f"{result.input_tokens + result.output_tokens:,}".replace(",", "."))
+    st.caption(f"Modell: {agent.model}")
 
     if result.final_result and result.final_result.rows:
         df = pd.DataFrame(result.final_result.rows, columns=result.final_result.columns)
         st.subheader("Daten der letzten Abfrage")
         st.dataframe(df, width="stretch")
-        numeric = df.select_dtypes("number").columns.tolist()
-        labels = [c for c in df.columns if c not in numeric]
-        if len(df) > 1 and numeric and labels:
-            st.bar_chart(df.set_index(labels[0])[numeric])
+        chart = build_chart(df)
+        if chart is not None:
+            st.altair_chart(chart, width="stretch")
         with st.expander("Finale SQL-Abfrage"):
             st.code(result.final_sql, language="sql")
